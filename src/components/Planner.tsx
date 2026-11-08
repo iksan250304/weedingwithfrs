@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Budget, CATS, Item, budgetTotal, catName, norm, rp, sumOf } from '@/lib/utils';
 import Icon from './Icon';
+import BirdLove from './BirdLove';
 import ItemCard from './ItemCard';
 import ItemSheet from './ItemSheet';
 import BudgetSheet from './BudgetSheet';
@@ -35,7 +36,8 @@ export default function Planner({ email, initialItems, initialBudget }: Props) {
     const set = (done: boolean) => setItems((l) => l.map((x) => (x.id === it.id ? { ...x, done } : x)));
     set(!it.done);
     const { error } = await sb.from('wedding_items').update({ done: !it.done }).eq('id', it.id);
-    if (error) { set(it.done); say('Gagal menyimpan: ' + error.message); }
+    if (error) { set(it.done); return say('Gagal menyimpan: ' + error.message); }
+    say(it.done ? `Pembelian dibatalkan, saldo kembali ${rp(it.price)}` : `Dibeli. Saldo berkurang ${rp(it.price)}`);
   }
   async function remove(it: Item) {
     const { error } = await sb.from('wedding_items').delete().eq('id', it.id);
@@ -56,15 +58,18 @@ export default function Planner({ email, initialItems, initialBudget }: Props) {
   }
 
   const bt = budgetTotal(budget);
-  const planned = sumOf(items);
-  const pct = bt ? Math.min(100, (planned / bt) * 100) : 0;
+  const bought = items.filter((i) => i.done);
+  const spent = sumOf(bought);
+  const pending = sumOf(items.filter((i) => !i.done));
+  const saldo = bt - spent;
+  const pct = bt ? Math.min(100, (spent / bt) * 100) : 0;
   const key = q.trim().toLowerCase();
   const list = items
     .filter((i) => (filter === 'all' || i.cat === filter) &&
       (!key || [i.name, i.store, i.note, i.wa, i.link, catName(i.cat)].join(' ').toLowerCase().includes(key)))
     .sort((a, b) => Number(a.done) - Number(b.done) || a.prio - b.prio || a.created_at.localeCompare(b.created_at));
   const catBudget = filter !== 'all' ? Number(budget.cats[filter]) || 0 : 0;
-  const catSpent = sumOf(items.filter((i) => i.cat === filter));
+  const catSpent = sumOf(items.filter((i) => i.cat === filter && i.done));
 
   return (
     <>
@@ -86,11 +91,11 @@ export default function Planner({ email, initialItems, initialBudget }: Props) {
 
           <section className="relative mt-3.5 overflow-hidden rounded-[26px] bg-acc p-[18px] text-on">
             <Icon name="heart" fill cls="pointer-events-none absolute -right-2 -top-2 h-24 w-24 rotate-12 opacity-[.13]" />
-            <div className="text-[13px] opacity-90">Rencana pengeluaran</div>
-            <div className="font-serif text-[clamp(28px,9vw,36px)] font-bold leading-[1.1]">{rp(planned)}</div>
+            <div className="text-[13px] opacity-90">Saldo budget</div>
+            <div className="font-serif text-[clamp(28px,9vw,36px)] font-bold leading-[1.1]">{bt ? rp(saldo) : 'Belum diatur'}</div>
             <div className="my-3 h-3 overflow-hidden rounded-full bg-on/30"><i className="block h-full rounded-full bg-on transition-[width]" style={{ width: pct + '%' }} /></div>
-            <p className="text-[13px]">{bt ? (bt - planned >= 0 ? `Sisa budget ${rp(bt - planned)} dari ${rp(bt)}` : `Lewat budget ${rp(planned - bt)} dari ${rp(bt)}`) : 'Budget belum diatur. Buka menu dompet di atas.'}</p>
-            <p className="text-[13px]">Selesai {items.filter((i) => i.done).length} dari {items.length} catatan, dibayar {rp(sumOf(items.filter((i) => i.done)))}</p>
+            <p className="text-[13px]">{bt ? `Terpakai ${rp(spent)} dari ${rp(bt)}${saldo < 0 ? ' (saldo minus)' : ''}` : 'Atur budget lewat menu dompet di atas.'}</p>
+            <p className="text-[13px]">Dibeli {bought.length} dari {items.length} catatan. Belum dibeli {rp(pending)}{bt && pending > Math.max(saldo, 0) ? `, melebihi saldo ${rp(pending - Math.max(saldo, 0))}` : ''}</p>
           </section>
 
           <nav className="-mx-0.5 flex gap-2 overflow-x-auto px-0.5 pb-1.5 pt-3.5 [scrollbar-width:none]">
@@ -102,7 +107,7 @@ export default function Planner({ email, initialItems, initialBudget }: Props) {
 
           {catBudget > 0 && (
             <div className="my-2 rounded-2xl bg-soft px-3.5 py-2.5 text-[13px]">
-              <b>Budget {catName(filter)}</b>: {rp(catSpent)} dari {rp(catBudget)}{catSpent > catBudget ? ' (lewat)' : ''}
+              <b>Budget {catName(filter)}</b>: terpakai {rp(catSpent)} dari {rp(catBudget)}, saldo {rp(catBudget - catSpent)}{catSpent > catBudget ? ' (lewat)' : ''}
               <div className="mt-2 h-2 overflow-hidden rounded-full bg-line"><i className="block h-full bg-acc" style={{ width: Math.min(100, (catSpent / catBudget) * 100) + '%' }} /></div>
             </div>
           )}
@@ -111,7 +116,7 @@ export default function Planner({ email, initialItems, initialBudget }: Props) {
             <ItemCard key={it.id} it={it} onToggle={() => toggle(it)} onEdit={() => setSheet(it)} onDelete={() => remove(it)} />
           )) : (
             <div className="px-2.5 py-11 text-center text-mute">
-              <Icon name="letter" cls="mx-auto mb-2 h-14 w-14 text-acc2" />
+              <BirdLove cls="mx-auto -mb-1 w-52" />
               <h2 className="text-[26px] text-ink">{key ? 'Tidak ada hasil' : 'Belum ada catatan'}</h2>
               <p>{key ? 'Coba kata kunci lain.' : 'Tekan Tambah untuk mulai mencatat.'}</p>
             </div>

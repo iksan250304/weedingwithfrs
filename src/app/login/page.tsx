@@ -2,7 +2,7 @@
 import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import Icon from '@/components/Icon';
+import BirdLove from '@/components/BirdLove';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -28,7 +28,7 @@ export default function LoginPage() {
   return (
     <main className="grid min-h-[100dvh] place-items-center p-5">
       <form onSubmit={submit} className="w-full max-w-[400px] rounded-[28px] border-2 border-line bg-card p-6 shadow-[0_5px_0_var(--line)]">
-        <span className="mx-auto mb-3 grid h-14 w-14 place-items-center rounded-full bg-acc text-on"><Icon name="rings" cls="h-8 w-8" /></span>
+        <BirdLove cls="mx-auto -mt-2 mb-1 w-44" />
         <h1 className="text-center text-4xl leading-none">Wedding I &amp; F</h1>
         <p className="mb-2 mt-2 text-center text-sm text-mute">{mode === 'in' ? 'Masuk untuk membuka catatan pernikahan' : 'Buat akun baru'}</p>
         <label className="lbl" htmlFor="email">Email</label>

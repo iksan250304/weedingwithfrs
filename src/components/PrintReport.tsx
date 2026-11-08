@@ -11,8 +11,8 @@ export default function PrintReport({ items, budget }: { items: Item[]; budget: 
       <h1 className="text-2xl">Laporan Kebutuhan Pernikahan: Wedding I &amp; F</h1>
       <p className="mb-2">Dicetak {today}</p>
       <table className="w-full border-collapse"><tbody>
-        <tr><th className={th}>Total budget</th><th className={th}>Rencana pengeluaran</th><th className={th}>Sudah dibayar</th><th className={th}>Sisa budget</th></tr>
-        <tr><td className={td}>{rp(bt)}</td><td className={td}>{rp(sumOf(items))}</td><td className={td}>{rp(sumOf(items.filter((i) => i.done)))}</td><td className={td}>{rp(bt - sumOf(items))}</td></tr>
+        <tr><th className={th}>Total budget</th><th className={th}>Sudah dibeli (terpakai)</th><th className={th}>Belum dibeli (rencana)</th><th className={th}>Saldo</th></tr>
+        <tr><td className={td}>{rp(bt)}</td><td className={td}>{rp(sumOf(items.filter((i) => i.done)))}</td><td className={td}>{rp(sumOf(items.filter((i) => !i.done)))}</td><td className={td}>{rp(bt - sumOf(items.filter((i) => i.done)))}</td></tr>
       </tbody></table>
       {CATS.map((c) => {
         const l = items.filter((i) => i.cat === c.k).sort((a, b) => a.prio - b.prio);
@@ -26,7 +26,7 @@ export default function PrintReport({ items, budget }: { items: Item[]; budget: 
                 <tr key={i.id}>
                   <td className={td}>{i.name}{i.note && <><br /><i>{i.note}</i></>}</td>
                   <td className={td}>{PRIO[i.prio]}</td><td className={td}>{rp(i.price)}</td>
-                  <td className={td}>{i.link || i.store || '-'}</td><td className={td}>{i.wa || '-'}</td><td className={td}>{i.done ? 'Selesai' : 'Belum'}</td>
+                  <td className={td}>{i.link || i.store || '-'}</td><td className={td}>{i.wa || '-'}</td><td className={td}>{i.done ? 'Dibeli' : 'Belum dibeli'}</td>
                 </tr>
               ))}
               <tr className="font-bold"><td className={td} colSpan={2}>Subtotal</td><td className={td} colSpan={4}>{rp(sumOf(l))}</td></tr>
