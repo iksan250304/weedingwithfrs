@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+:root{--bg:#f5e9d6;--card:#fffaf0;--ink:#4a2f1f;--mute:#8a6a52;--acc:#8b5a3c;--acc2:#c89b78;--line:#e5d1b3;--on:#fffaf0;--hi:#b9523a;--mid:#b9821a;--lo:#5f7d44;--soft:#f0dfc4;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#241812;--card:#33241b;--ink:#f3e4cf;--mute:#c4a687;--acc:#d4a276;--acc2:#8b5a3c;--line:#4a3527;--on:#2a1a10;--soft:#3d2b20;--hi:#e0785f;--mid:#e0b04a;--lo:#9bb878;color-scheme:dark}}
+@layer base{
+  *{-webkit-tap-highlight-color:transparent}
+  html{-webkit-text-size-adjust:100%}
+  body{@apply bg-bg font-sans font-medium text-ink;min-height:100dvh;overflow-x:hidden;padding:env(safe-area-inset-top,0) env(safe-area-inset-right,0) env(safe-area-inset-bottom,0) env(safe-area-inset-left,0)}
+  h1,h2{@apply font-serif font-bold}
+  :focus-visible{outline:3px solid var(--acc2);outline-offset:2px}
+}
+@layer components{
+  .field{@apply min-h-[46px] w-full rounded-2xl border-2 border-line bg-card px-3.5 py-3 text-base text-ink outline-none focus:border-acc}
+  .lbl{@apply mb-1 mt-3 block text-[13px] font-bold text-mute}
+  .btn{@apply inline-flex min-h-[42px] items-center justify-center gap-1.5 rounded-full bg-acc px-4 text-[13px] font-bold text-on no-underline disabled:opacity-60}
+  .btn-ghost{@apply bg-soft text-ink}
+  .btn-wa{@apply bg-[#4f7a4a] text-white}
+  .ib{@apply grid h-11 w-11 shrink-0 place-items-center rounded-full border-2 border-line bg-card p-0 text-ink active:scale-90}
+  .chip{@apply inline-flex min-h-[40px] shrink-0 items-center gap-1.5 rounded-full border-2 border-line bg-card px-3.5 text-[13px] font-bold text-ink}
+  .chip-on{@apply border-ink bg-ink text-bg}
+  .card{@apply mt-3 rounded-[22px] border-2 border-line bg-card p-3.5 shadow-[0_4px_0_var(--line)]}
+  .mini{@apply grid h-[42px] w-[42px] place-items-center rounded-full p-0 text-mute active:bg-soft}
+}
