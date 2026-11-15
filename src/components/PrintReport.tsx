@@ -1,9 +1,10 @@
-import { Budget, CATS, Item, PRIO, budgetTotal, rp, sumOf } from '@/lib/utils';
+import { Budget, CATS, GROUPS, Guest, Item, PRIO, SIDES, bajuOf, batikOf, budgetTotal, dressText, groupName, kebayaOf, paxOf, rp, sideName, sumOf } from '@/lib/utils';
 
 const th = 'border border-neutral-400 bg-[#f0e2cc] px-2 py-1 text-left';
 const td = 'break-words border border-neutral-400 px-2 py-1 align-top';
 
-export default function PrintReport({ items, budget }: { items: Item[]; budget: Budget }) {
+export default function PrintReport({ items, budget, guests, view, mode }: { items: Item[]; budget: Budget; guests: Guest[]; view: 'needs' | 'guests'; mode: PrintMode }) {
+  if (view === 'guests') return <GuestPrint guests={guests} mode={mode} />;
   const bt = budgetTotal(budget);
   const today = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
   return (
@@ -36,5 +37,97 @@ export default function PrintReport({ items, budget }: { items: Item[]; budget: 
       })}
       {!items.length && <p>Belum ada catatan.</p>}
     </section>
+  );
+}
+
+export type PrintMode = 'dress' | 'regular' | 'all';
+const sideTitle = 'mb-1.5 mt-5 border-b border-[#8b5a3c] pb-0.5 text-[17px] text-[#5a3a24]';
+const byName = (a: Guest, b: Guest) => a.name.localeCompare(b.name);
+const byGroup = (a: Guest, b: Guest) => GROUPS.findIndex((x) => x.k === a.grp) - GROUPS.findIndex((x) => x.k === b.grp) || byName(a, b);
+const head = (cols: string[]) => <tr>{cols.map((h) => <th key={h} className={th}>{h}</th>)}</tr>;
+const today = () => new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+
+function GuestPrint({ guests, mode }: { guests: Guest[]; mode: PrintMode }) {
+  return (
+    <section className="hidden bg-white p-0 font-serif text-xs text-black print:block">
+      {mode !== 'regular' && <DressDoc list={guests.filter((g) => g.dresscode)} />}
+      {mode === 'all' && <div className="break-before-page" />}
+      {mode !== 'dress' && <RegularDoc list={guests.filter((g) => !g.dresscode)} />}
+    </section>
+  );
+}
+
+function DressDoc({ list }: { list: Guest[] }) {
+  const given = list.filter((g) => g.given);
+  return (
+    <div>
+      <h1 className="text-2xl">Daftar Penerima Baju Dresscode: Wedding I &amp; F</h1>
+      <p className="mb-2">Dicetak {today()}</p>
+      <table className="w-full border-collapse"><tbody>
+        {head(['Total baju', 'Batik', 'Kebaya', 'Sudah diberikan', 'Belum diberikan'])}
+        <tr>
+          <td className={td}>{bajuOf(list)}</td><td className={td}>{batikOf(list)}</td><td className={td}>{kebayaOf(list)}</td>
+          <td className={td}>{bajuOf(given)}</td><td className={td}>{bajuOf(list) - bajuOf(given)}</td>
+        </tr>
+      </tbody></table>
+      {SIDES.map((s) => {
+        const l = list.filter((g) => g.side === s.k).sort(byName);
+        if (!l.length) return null;
+        return (
+          <div key={s.k}>
+            <h2 className={sideTitle}>{s.n} ({bajuOf(l)} baju, {l.length} undangan)</h2>
+            <table className="w-full border-collapse"><tbody>
+              {head(['No', 'Nama', 'Kelompok', 'Batik', 'Ukuran batik', 'Kebaya', 'Ukuran kebaya', 'Kontak', 'Status'])}
+              {l.map((g, n) => (
+                <tr key={g.id} className="break-inside-avoid">
+                  <td className={td}>{n + 1}</td><td className={td}>{g.name}</td><td className={td}>{groupName(g.grp)}</td>
+                  <td className={td}>{g.batik}</td><td className={td}>{g.size_batik || '-'}</td>
+                  <td className={td}>{g.kebaya}</td><td className={td}>{g.size_kebaya || '-'}</td>
+                  <td className={td}>{g.phone || '-'}</td><td className={td}>{g.given ? 'Sudah diberikan' : 'Belum diberikan'}</td>
+                </tr>
+              ))}
+              <tr className="font-bold"><td className={td} colSpan={3}>Total {s.n}</td><td className={td}>{batikOf(l)}</td><td className={td} /><td className={td}>{kebayaOf(l)}</td><td className={td} colSpan={3} /></tr>
+            </tbody></table>
+          </div>
+        );
+      })}
+      {!list.length && <p className="mt-4">Belum ada penerima dresscode.</p>}
+    </div>
+  );
+}
+
+function RegularDoc({ list }: { list: Guest[] }) {
+  return (
+    <div>
+      <h1 className="text-2xl">Daftar Tamu Undangan (Tanpa Dresscode): Wedding I &amp; F</h1>
+      <p className="mb-2">Dicetak {today()}</p>
+      <table className="w-full border-collapse"><tbody>
+        {head(['Total tamu', ...SIDES.map((s) => s.n)])}
+        <tr>
+          <td className={td}>{paxOf(list)} orang ({list.length} undangan)</td>
+          {SIDES.map((s) => { const l = list.filter((g) => g.side === s.k); return <td key={s.k} className={td}>{paxOf(l)} orang ({l.length} undangan)</td>; })}
+        </tr>
+      </tbody></table>
+      {SIDES.map((s) => {
+        const l = list.filter((g) => g.side === s.k).sort(byGroup);
+        if (!l.length) return null;
+        return (
+          <div key={s.k}>
+            <h2 className={sideTitle}>{s.n} ({paxOf(l)} orang, {l.length} undangan)</h2>
+            <table className="w-full border-collapse"><tbody>
+              {head(['No', 'Nama', 'Kelompok', 'Orang', 'Kontak', 'Catatan'])}
+              {l.map((g, n) => (
+                <tr key={g.id} className="break-inside-avoid">
+                  <td className={td}>{n + 1}</td><td className={td}>{g.name}</td><td className={td}>{groupName(g.grp)}</td>
+                  <td className={td}>{g.pax}</td><td className={td}>{g.phone || '-'}</td><td className={td}>{g.note || '-'}</td>
+                </tr>
+              ))}
+              <tr className="font-bold"><td className={td} colSpan={3}>Total {s.n}</td><td className={td}>{paxOf(l)}</td><td className={td} colSpan={2} /></tr>
+            </tbody></table>
+          </div>
+        );
+      })}
+      {!list.length && <p className="mt-4">Belum ada tamu biasa.</p>}
+    </div>
   );
 }

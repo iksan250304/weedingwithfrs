@@ -2,18 +2,20 @@
 import { useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { Budget, CATS, Item, budgetTotal, catName, norm, rp, sumOf } from '@/lib/utils';
+import { Budget, CATS, Guest, Item, bajuOf, budgetTotal, catName, norm, normGuest, paxOf, rp, sumOf } from '@/lib/utils';
 import Icon from './Icon';
 import BirdLove from './BirdLove';
 import ItemCard from './ItemCard';
 import ItemSheet from './ItemSheet';
 import BudgetSheet from './BudgetSheet';
-import PrintReport from './PrintReport';
+import PrintReport, { type PrintMode } from './PrintReport';
+import GuestsPanel from './GuestsPanel';
+import GuestSheet from './GuestSheet';
 
-type Props = { email: string; initialItems: Item[]; initialBudget: Budget };
-type Toast = { msg: string; undo?: Item } | null;
+type Props = { email: string; initialItems: Item[]; initialBudget: Budget; initialGuests: Guest[] };
+type Toast = { msg: string; undo?: Item; undoG?: Guest } | null;
 
-export default function Planner({ email, initialItems, initialBudget }: Props) {
+export default function Planner({ email, initialItems, initialBudget, initialGuests }: Props) {
   const router = useRouter();
   const sb = useMemo(() => createClient(), []);
   const [items, setItems] = useState(initialItems);
@@ -24,10 +26,16 @@ export default function Planner({ email, initialItems, initialBudget }: Props) {
   const [sheet, setSheet] = useState<Item | 'new' | null>(null);
   const [budgetOpen, setBudgetOpen] = useState(false);
   const [toast, setToast] = useState<Toast>(null);
+  const [view, setView] = useState<'needs' | 'guests'>('needs');
+  const [guests, setGuests] = useState(initialGuests);
+  const [gFilter, setGFilter] = useState('all');
+  const [gSheet, setGSheet] = useState<Guest | 'new' | null>(null);
+  const [printMenu, setPrintMenu] = useState(false);
+  const [printMode, setPrintMode] = useState<PrintMode>('all');
   const timer = useRef<ReturnType<typeof setTimeout>>();
 
-  function say(msg: string, undo?: Item) {
-    setToast({ msg, undo });
+  function say(msg: string, undo?: Item, undoG?: Guest) {
+    setToast({ msg, undo, undoG });
     clearTimeout(timer.current);
     timer.current = setTimeout(() => setToast(null), 4000);
   }
@@ -50,6 +58,25 @@ export default function Planner({ email, initialItems, initialBudget }: Props) {
     const { data, error } = await sb.from('wedding_items').insert(it).select().single();
     if (error) return say('Gagal mengembalikan: ' + error.message);
     setItems((l) => [...l, norm(data)]);
+  }
+  async function toggleGiven(g: Guest) {
+    const set = (given: boolean) => setGuests((l) => l.map((x) => (x.id === g.id ? { ...x, given } : x)));
+    set(!g.given);
+    const { error } = await sb.from('wedding_guests').update({ given: !g.given }).eq('id', g.id);
+    if (error) { set(g.given); return say('Gagal menyimpan: ' + error.message); }
+    say(g.given ? 'Status baju dibatalkan' : `Baju dresscode diberikan ke ${g.name}`);
+  }
+  async function removeGuest(g: Guest) {
+    const { error } = await sb.from('wedding_guests').delete().eq('id', g.id);
+    if (error) return say('Gagal menghapus: ' + error.message);
+    setGuests((l) => l.filter((x) => x.id !== g.id));
+    say('Tamu dihapus', undefined, g);
+  }
+  async function undoGuest(g: Guest) {
+    setToast(null);
+    const { data, error } = await sb.from('wedding_guests').insert(g).select().single();
+    if (error) return say('Gagal mengembalikan: ' + error.message);
+    setGuests((l) => [...l, normGuest(data)]);
   }
   async function logout() {
     await sb.auth.signOut();
@@ -82,13 +109,25 @@ export default function Planner({ email, initialItems, initialBudget }: Props) {
               <small className="block truncate text-xs font-semibold text-mute">{email}</small>
             </div>
             <button className={`ib ${searchOn ? '!border-acc !bg-acc !text-on' : ''}`} aria-label="Cari" onClick={() => { setSearchOn(!searchOn); setQ(''); }}><Icon name="search" /></button>
-            <button className="ib" aria-label="Atur budget" onClick={() => setBudgetOpen(true)}><Icon name="wallet" /></button>
-            <button className="ib" aria-label="Cetak laporan" onClick={() => window.print()}><Icon name="print" /></button>
+            {view === 'needs' && <button className="ib" aria-label="Atur budget" onClick={() => setBudgetOpen(true)}><Icon name="wallet" /></button>}
+            <button className="ib" aria-label="Cetak laporan" onClick={() => (view === 'guests' ? setPrintMenu(true) : window.print())}><Icon name="print" /></button>
             <button className="ib" aria-label="Keluar" onClick={logout}><Icon name="logout" /></button>
           </header>
 
-          {searchOn && <input autoFocus type="search" className="field mt-3" placeholder="Cari barang, vendor, atau toko" value={q} onChange={(e) => setQ(e.target.value)} />}
+          <div className="mt-3 grid grid-cols-2 gap-1 rounded-full bg-soft p-1" role="tablist">
+            {([['needs', 'Kebutuhan', 'gift'], ['guests', 'Tamu', 'users']] as const).map(([k, n, ic]) => (
+              <button key={k} role="tab" aria-selected={view === k} onClick={() => { setView(k); setQ(''); }}
+                className={`flex min-h-[44px] items-center justify-center gap-2 rounded-full text-sm font-bold ${view === k ? 'bg-acc text-on' : 'text-mute'}`}>
+                <Icon name={ic} cls="h-4 w-4" />{n}{k === 'guests' ? ` (${guests.length})` : ''}
+              </button>
+            ))}
+          </div>
 
+          {searchOn && <input autoFocus type="search" className="field mt-3" placeholder={view === 'needs' ? 'Cari barang, vendor, atau toko' : 'Cari nama tamu atau catatan'} value={q} onChange={(e) => setQ(e.target.value)} />}
+
+          {view === 'guests' ? (
+            <GuestsPanel guests={guests} q={q} filter={gFilter} setFilter={setGFilter} onGiven={toggleGiven} onEdit={setGSheet} onDelete={removeGuest} />
+          ) : (<>
           <section className="relative mt-3.5 overflow-hidden rounded-[26px] bg-acc p-[18px] text-on">
             <Icon name="heart" fill cls="pointer-events-none absolute -right-2 -top-2 h-24 w-24 rotate-12 opacity-[.13]" />
             <div className="text-[13px] opacity-90">Saldo budget</div>
@@ -121,9 +160,10 @@ export default function Planner({ email, initialItems, initialBudget }: Props) {
               <p>{key ? 'Coba kata kunci lain.' : 'Tekan Tambah untuk mulai mencatat.'}</p>
             </div>
           )}
+          </>)}
         </main>
 
-        <button onClick={() => setSheet('new')}
+        <button onClick={() => (view === 'needs' ? setSheet('new') : setGSheet('new'))}
           className="fixed bottom-[calc(18px+env(safe-area-inset-bottom,0px))] right-[max(16px,calc(50%-264px))] z-10 flex min-h-[52px] items-center gap-2 rounded-full bg-acc px-[22px] text-base font-bold text-on shadow-[0_5px_0_var(--ink)] active:translate-y-[3px] active:shadow-[0_2px_0_var(--ink)]">
           <Icon name="plus" />Tambah
         </button>
@@ -132,16 +172,40 @@ export default function Planner({ email, initialItems, initialBudget }: Props) {
           <ItemSheet item={sheet === 'new' ? null : sheet} defaultCat={filter !== 'all' ? filter : 'seserahan'} onClose={() => setSheet(null)}
             onSaved={(row, isNew) => { setItems((l) => (isNew ? [...l, row] : l.map((x) => (x.id === row.id ? row : x)))); setSheet(null); say(isNew ? 'Catatan disimpan' : 'Catatan diperbarui'); }} />
         )}
+        {printMenu && (
+          <div className="fixed inset-0 z-20 flex items-end justify-center bg-black/50" onClick={(e) => e.target === e.currentTarget && setPrintMenu(false)}>
+            <div className="w-full max-w-[560px] rounded-t-[28px] bg-bg px-4 pt-5 pb-[calc(24px+env(safe-area-inset-bottom,0px))]">
+              <h2 className="text-[28px]">Cetak daftar tamu</h2>
+              <p className="mb-3 text-sm text-mute">Pilih dokumen yang mau dicetak.</p>
+              {([
+                ['dress', 'Penerima dresscode', `${guests.filter((g) => g.dresscode).length} undangan, ${bajuOf(guests.filter((g) => g.dresscode))} baju`],
+                ['regular', 'Tamu biasa (tanpa dresscode)', `${guests.filter((g) => !g.dresscode).length} undangan, ${paxOf(guests.filter((g) => !g.dresscode))} orang`],
+                ['all', 'Keduanya, halaman terpisah', 'Dresscode dulu, lalu tamu biasa'],
+              ] as const).map(([m, n, sub]) => (
+                <button key={m} className="mb-2 flex min-h-[58px] w-full flex-col items-start justify-center rounded-2xl border-2 border-line bg-card px-4 text-left active:bg-soft"
+                  onClick={() => { setPrintMode(m); setPrintMenu(false); setTimeout(() => window.print(), 150); }}>
+                  <b>{n}</b><span className="text-[13px] text-mute">{sub}</span>
+                </button>
+              ))}
+              <button className="btn btn-ghost mt-1" onClick={() => setPrintMenu(false)}>Batal</button>
+            </div>
+          </div>
+        )}
+        {gSheet && (
+          <GuestSheet guest={gSheet === 'new' ? null : gSheet} defaultSide={gFilter === 'f' ? 'f' : 'i'} onClose={() => setGSheet(null)}
+            onSaved={(row, isNew) => { setGuests((l) => (isNew ? [...l, row] : l.map((x) => (x.id === row.id ? row : x)))); setGSheet(null); say(isNew ? 'Tamu disimpan' : 'Tamu diperbarui'); }} />
+        )}
         {budgetOpen && <BudgetSheet budget={budget} onClose={() => setBudgetOpen(false)} onSaved={(b) => { setBudget(b); setBudgetOpen(false); say('Budget disimpan'); }} />}
 
         {toast && (
           <div role="status" className="fixed bottom-[calc(88px+env(safe-area-inset-bottom,0px))] left-1/2 z-30 max-w-[92vw] -translate-x-1/2 rounded-full bg-ink px-4 py-2.5 text-center text-[13px] font-bold text-bg">
             {toast.msg}
             {toast.undo && <button className="ml-2.5 min-h-8 font-bold text-acc2" onClick={() => undo(toast.undo!)}>Urungkan</button>}
+            {toast.undoG && <button className="ml-2.5 min-h-8 font-bold text-acc2" onClick={() => undoGuest(toast.undoG!)}>Urungkan</button>}
           </div>
         )}
       </div>
-      <PrintReport items={items} budget={budget} />
+      <PrintReport items={items} budget={budget} guests={guests} view={view} mode={printMode} />
     </>
   );
 }
