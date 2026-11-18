@@ -1,9 +1,18 @@
 export type Item = { id: string; name: string; cat: string; price: number; wa: string; link: string; store: string; note: string; prio: number; done: boolean; created_at: string };
 export type Budget = { total: number; cats: Record<string, number> };
 export const CATS = [
-  { k: 'seserahan', n: 'Seserahan', icon: 'gift' }, { k: 'souvenir', n: 'Souvenir', icon: 'bag' }, { k: 'mahar', n: 'Mas Kawin', icon: 'crown' },
-  { k: 'cincin', n: 'Cincin', icon: 'ring' }, { k: 'kua', n: 'Administrasi KUA', icon: 'scroll' },
+  { k: 'seserahan', n: 'Seserahan', icon: 'gift' }, { k: 'souvenir', n: 'Souvenir & Undangan', icon: 'bag' },
+  { k: 'seragam', n: 'Baju Seragam', icon: 'shirt' }, { k: 'mahar', n: 'Mas Kawin & Cincin', icon: 'ring' },
+  { k: 'kua', n: 'Administrasi KUA', icon: 'scroll' },
 ];
+// Kategori 'cincin' lama otomatis digabung ke 'mahar'
+export const fixCat = (k: string) => (k === 'cincin' ? 'mahar' : k);
+export const fixCats = (c: Record<string, number>) => {
+  const o = { ...c };
+  if (o.cincin) o.mahar = (Number(o.mahar) || 0) + Number(o.cincin);
+  delete o.cincin;
+  return o;
+};
 export const PRIO: Record<number, string> = { 1: 'Tinggi', 2: 'Sedang', 3: 'Santai' };
 export const PRIO_BG: Record<number, string> = { 1: 'bg-hi', 2: 'bg-mid', 3: 'bg-lo' };
 export const rp = (n: number) => 'Rp' + (Number(n) || 0).toLocaleString('id-ID');
@@ -13,7 +22,7 @@ export const toUrl = (u: string) => (/^https?:\/\//i.test(u) ? u : 'https://' + 
 export const toWa = (n: string) => { let d = n.replace(/\D/g, ''); if (d[0] === '0') d = '62' + d.slice(1); else if (d[0] === '8') d = '62' + d; return d; };
 export const sumOf = (l: Item[]) => l.reduce((a, i) => a + (Number(i.price) || 0), 0);
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const norm = (r: any): Item => ({ id: r.id, name: r.name, cat: r.cat, price: Number(r.price) || 0, wa: r.wa ?? '', link: r.link ?? '', store: r.store ?? '', note: r.note ?? '', prio: r.prio ?? 2, done: !!r.done, created_at: r.created_at });
+export const norm = (r: any): Item => ({ id: r.id, name: r.name, cat: fixCat(r.cat), price: Number(r.price) || 0, wa: r.wa ?? '', link: r.link ?? '', store: r.store ?? '', note: r.note ?? '', prio: r.prio ?? 2, done: !!r.done, created_at: r.created_at });
 export const budgetTotal = (b: Budget) => b.total || Object.values(b.cats).reduce((a, c) => a + (Number(c) || 0), 0);
 
 export type Guest = { id: string; name: string; side: string; grp: string; pax: number; phone: string; dresscode: boolean; batik: number; kebaya: number; size_batik: string; size_kebaya: string; given: boolean; note: string; created_at: string };

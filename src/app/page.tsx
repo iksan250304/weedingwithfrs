@@ -1,6 +1,6 @@
 import Planner from '@/components/Planner';
 import { createClient } from '@/lib/supabase/server';
-import { norm, normGuest, type Budget } from '@/lib/utils';
+import { fixCats, norm, normGuest, type Budget } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,6 +12,6 @@ export default async function Home() {
     sb.from('wedding_budget').select('*').eq('id', 1).maybeSingle(),
     sb.from('wedding_guests').select('*').order('created_at'),
   ]);
-  const budget: Budget = { total: Number(bud.data?.total) || 0, cats: (bud.data?.cats as Record<string, number>) ?? {} };
+  const budget: Budget = { total: Number(bud.data?.total) || 0, cats: fixCats((bud.data?.cats as Record<string, number>) ?? {}) };
   return <Planner email={user?.email ?? ''} initialItems={(items.data ?? []).map(norm)} initialBudget={budget} initialGuests={(guests.data ?? []).map(normGuest)} />;
 }
