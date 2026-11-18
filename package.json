@@ -1,9 +1,5 @@
 {
-<<<<<<< HEAD
   "name": "weedingwithfrs",
-=======
-  "name": "wedding-i-f",
->>>>>>> 6fbf6c92df783892fa8773654767ca0275a4600e
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -12,10 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
-<<<<<<< HEAD
     "@fontsource-variable/inter": "5.3.0",
-=======
->>>>>>> 6fbf6c92df783892fa8773654767ca0275a4600e
     "@supabase/ssr": "0.5.1",
     "@supabase/supabase-js": "2.45.4",
     "lottie-react": "2.4.0",
