@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Wedding Planner
+=======
+# Wedding I & F
+>>>>>>> 6fbf6c92df783892fa8773654767ca0275a4600e
 
 Next.js 14 (App Router) + TypeScript + Tailwind + Supabase (Auth + Postgres + RLS).
 

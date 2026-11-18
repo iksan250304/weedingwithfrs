@@ -1,6 +1,10 @@
 import { Budget, CATS, GROUPS, Guest, Item, PRIO, SIDES, bajuOf, batikOf, budgetTotal, dressText, groupName, kebayaOf, paxOf, rp, sideName, sumOf } from '@/lib/utils';
 
+<<<<<<< HEAD
 const th = 'border border-neutral-400 bg-[#DDD9CE] px-2 py-1 text-left';
+=======
+const th = 'border border-neutral-400 bg-[#f0e2cc] px-2 py-1 text-left';
+>>>>>>> 6fbf6c92df783892fa8773654767ca0275a4600e
 const td = 'break-words border border-neutral-400 px-2 py-1 align-top';
 
 export default function PrintReport({ items, budget, guests, view, mode }: { items: Item[]; budget: Budget; guests: Guest[]; view: 'needs' | 'guests'; mode: PrintMode }) {
@@ -8,8 +12,13 @@ export default function PrintReport({ items, budget, guests, view, mode }: { ite
   const bt = budgetTotal(budget);
   const today = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
   return (
+<<<<<<< HEAD
     <section className="hidden bg-white p-0 font-sans text-xs text-black print:block">
       <h1 className="text-2xl">Laporan Kebutuhan Pernikahan: Wedding Planner</h1>
+=======
+    <section className="hidden bg-white p-0 font-serif text-xs text-black print:block">
+      <h1 className="text-2xl">Laporan Kebutuhan Pernikahan: Wedding I &amp; F</h1>
+>>>>>>> 6fbf6c92df783892fa8773654767ca0275a4600e
       <p className="mb-2">Dicetak {today}</p>
       <table className="w-full border-collapse"><tbody>
         <tr><th className={th}>Total budget</th><th className={th}>Sudah dibeli (terpakai)</th><th className={th}>Belum dibeli (rencana)</th><th className={th}>Saldo</th></tr>
@@ -20,7 +29,11 @@ export default function PrintReport({ items, budget, guests, view, mode }: { ite
         if (!l.length) return null;
         return (
           <div key={c.k} className="break-inside-avoid">
+<<<<<<< HEAD
             <h2 className="mb-1.5 mt-5 border-b border-[#3C2415] pb-0.5 text-[17px] text-[#3C2415]">{c.n}{budget.cats[c.k] ? ` (budget ${rp(budget.cats[c.k])})` : ''}</h2>
+=======
+            <h2 className="mb-1.5 mt-5 border-b border-[#8b5a3c] pb-0.5 text-[17px] text-[#5a3a24]">{c.n}{budget.cats[c.k] ? ` (budget ${rp(budget.cats[c.k])})` : ''}</h2>
+>>>>>>> 6fbf6c92df783892fa8773654767ca0275a4600e
             <table className="w-full border-collapse"><tbody>
               <tr>{['Barang', 'Prioritas', 'Harga', 'Link atau toko', 'WA vendor', 'Status'].map((h) => <th key={h} className={th}>{h}</th>)}</tr>
               {l.map((i) => (
@@ -41,7 +54,11 @@ export default function PrintReport({ items, budget, guests, view, mode }: { ite
 }
 
 export type PrintMode = 'dress' | 'regular' | 'all';
+<<<<<<< HEAD
 const sideTitle = 'mb-1.5 mt-5 border-b border-[#3C2415] pb-0.5 text-[17px] text-[#3C2415]';
+=======
+const sideTitle = 'mb-1.5 mt-5 border-b border-[#8b5a3c] pb-0.5 text-[17px] text-[#5a3a24]';
+>>>>>>> 6fbf6c92df783892fa8773654767ca0275a4600e
 const byName = (a: Guest, b: Guest) => a.name.localeCompare(b.name);
 const byGroup = (a: Guest, b: Guest) => GROUPS.findIndex((x) => x.k === a.grp) - GROUPS.findIndex((x) => x.k === b.grp) || byName(a, b);
 const head = (cols: string[]) => <tr>{cols.map((h) => <th key={h} className={th}>{h}</th>)}</tr>;
@@ -49,7 +66,11 @@ const today = () => new Date().toLocaleDateString('id-ID', { day: 'numeric', mon
 
 function GuestPrint({ guests, mode }: { guests: Guest[]; mode: PrintMode }) {
   return (
+<<<<<<< HEAD
     <section className="hidden bg-white p-0 font-sans text-xs text-black print:block">
+=======
+    <section className="hidden bg-white p-0 font-serif text-xs text-black print:block">
+>>>>>>> 6fbf6c92df783892fa8773654767ca0275a4600e
       {mode !== 'regular' && <DressDoc list={guests.filter((g) => g.dresscode)} />}
       {mode === 'all' && <div className="break-before-page" />}
       {mode !== 'dress' && <RegularDoc list={guests.filter((g) => !g.dresscode)} />}
@@ -61,7 +82,11 @@ function DressDoc({ list }: { list: Guest[] }) {
   const given = list.filter((g) => g.given);
   return (
     <div>
+<<<<<<< HEAD
       <h1 className="text-2xl">Daftar Penerima Baju Dresscode: Wedding Planner</h1>
+=======
+      <h1 className="text-2xl">Daftar Penerima Baju Dresscode: Wedding I &amp; F</h1>
+>>>>>>> 6fbf6c92df783892fa8773654767ca0275a4600e
       <p className="mb-2">Dicetak {today()}</p>
       <table className="w-full border-collapse"><tbody>
         {head(['Total baju', 'Batik', 'Kebaya', 'Sudah diberikan', 'Belum diberikan'])}
@@ -99,7 +124,11 @@ function DressDoc({ list }: { list: Guest[] }) {
 function RegularDoc({ list }: { list: Guest[] }) {
   return (
     <div>
+<<<<<<< HEAD
       <h1 className="text-2xl">Daftar Tamu Undangan (Tanpa Dresscode): Wedding Planner</h1>
+=======
+      <h1 className="text-2xl">Daftar Tamu Undangan (Tanpa Dresscode): Wedding I &amp; F</h1>
+>>>>>>> 6fbf6c92df783892fa8773654767ca0275a4600e
       <p className="mb-2">Dicetak {today()}</p>
       <table className="w-full border-collapse"><tbody>
         {head(['Total tamu', ...SIDES.map((s) => s.n)])}

@@ -3,7 +3,10 @@ import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import BirdLove from '@/components/BirdLove';
+<<<<<<< HEAD
 import Logo from '@/components/Logo';
+=======
+>>>>>>> 6fbf6c92df783892fa8773654767ca0275a4600e
 
 export default function LoginPage() {
   const router = useRouter();
@@ -28,10 +31,16 @@ export default function LoginPage() {
 
   return (
     <main className="grid min-h-[100dvh] place-items-center p-5">
+<<<<<<< HEAD
       <form onSubmit={submit} className="glass w-full max-w-[400px] rounded-[28px] p-6">
         <BirdLove cls="mx-auto -mt-2 mb-1 w-44" />
         <Logo cls="mx-auto mb-2 h-16 w-auto text-acc" />
         <h1 className="text-center text-5xl leading-none">Wedding Planner</h1>
+=======
+      <form onSubmit={submit} className="w-full max-w-[400px] rounded-[28px] border-2 border-line bg-card p-6 shadow-[0_5px_0_var(--line)]">
+        <BirdLove cls="mx-auto -mt-2 mb-1 w-44" />
+        <h1 className="text-center text-4xl leading-none">Wedding I &amp; F</h1>
+>>>>>>> 6fbf6c92df783892fa8773654767ca0275a4600e
         <p className="mb-2 mt-2 text-center text-sm text-mute">{mode === 'in' ? 'Masuk untuk membuka catatan pernikahan' : 'Buat akun baru'}</p>
         <label className="lbl" htmlFor="email">Email</label>
         <input id="email" className="field" type="email" inputMode="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />

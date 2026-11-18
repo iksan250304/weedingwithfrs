@@ -4,7 +4,10 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Budget, CATS, Guest, Item, bajuOf, budgetTotal, catName, norm, normGuest, paxOf, rp, sumOf } from '@/lib/utils';
 import Icon from './Icon';
+<<<<<<< HEAD
 import Logo from './Logo';
+=======
+>>>>>>> 6fbf6c92df783892fa8773654767ca0275a4600e
 import BirdLove from './BirdLove';
 import ItemCard from './ItemCard';
 import ItemSheet from './ItemSheet';
@@ -104,21 +107,37 @@ export default function Planner({ email, initialItems, initialBudget, initialGue
       <div className="print:hidden">
         <main className="mx-auto max-w-[560px] px-3.5 pb-[104px] pt-3.5">
           <header className="flex items-center gap-2">
+<<<<<<< HEAD
             <Logo cls="hidden h-14 w-auto shrink-0 text-acc min-[400px]:block" />
             <div className="min-w-0 flex-1">
               <h1 className="text-[clamp(30px,9vw,38px)] leading-[.95]">Wedding Planner</h1>
               <small className="block truncate text-xs font-semibold text-mute">{email}</small>
             </div>
             <button className={`ib ${searchOn ? 'ib-on' : ''}`} aria-label="Cari" onClick={() => { setSearchOn(!searchOn); setQ(''); }}><Icon name="search" /></button>
+=======
+            <span className="hidden h-11 w-11 shrink-0 place-items-center rounded-full bg-acc text-on min-[400px]:grid"><Icon name="rings" cls="h-6 w-6" /></span>
+            <div className="min-w-0 flex-1">
+              <h1 className="text-[clamp(26px,8vw,34px)] leading-[1.05]">Wedding I &amp; F</h1>
+              <small className="block truncate text-xs font-semibold text-mute">{email}</small>
+            </div>
+            <button className={`ib ${searchOn ? '!border-acc !bg-acc !text-on' : ''}`} aria-label="Cari" onClick={() => { setSearchOn(!searchOn); setQ(''); }}><Icon name="search" /></button>
+>>>>>>> 6fbf6c92df783892fa8773654767ca0275a4600e
             {view === 'needs' && <button className="ib" aria-label="Atur budget" onClick={() => setBudgetOpen(true)}><Icon name="wallet" /></button>}
             <button className="ib" aria-label="Cetak laporan" onClick={() => (view === 'guests' ? setPrintMenu(true) : window.print())}><Icon name="print" /></button>
             <button className="ib" aria-label="Keluar" onClick={logout}><Icon name="logout" /></button>
           </header>
 
+<<<<<<< HEAD
           <div className="mt-3 glass grid grid-cols-2 gap-1 rounded-full p-1" role="tablist">
             {([['needs', 'Kebutuhan', 'gift'], ['guests', 'Tamu', 'users']] as const).map(([k, n, ic]) => (
               <button key={k} role="tab" aria-selected={view === k} onClick={() => { setView(k); setQ(''); }}
                 className={`flex min-h-[44px] items-center justify-center gap-2 rounded-full text-sm font-bold ${view === k ? 'glass-dark' : 'text-mute'}`}>
+=======
+          <div className="mt-3 grid grid-cols-2 gap-1 rounded-full bg-soft p-1" role="tablist">
+            {([['needs', 'Kebutuhan', 'gift'], ['guests', 'Tamu', 'users']] as const).map(([k, n, ic]) => (
+              <button key={k} role="tab" aria-selected={view === k} onClick={() => { setView(k); setQ(''); }}
+                className={`flex min-h-[44px] items-center justify-center gap-2 rounded-full text-sm font-bold ${view === k ? 'bg-acc text-on' : 'text-mute'}`}>
+>>>>>>> 6fbf6c92df783892fa8773654767ca0275a4600e
                 <Icon name={ic} cls="h-4 w-4" />{n}{k === 'guests' ? ` (${guests.length})` : ''}
               </button>
             ))}
@@ -129,11 +148,19 @@ export default function Planner({ email, initialItems, initialBudget, initialGue
           {view === 'guests' ? (
             <GuestsPanel guests={guests} q={q} filter={gFilter} setFilter={setGFilter} onGiven={toggleGiven} onEdit={setGSheet} onDelete={removeGuest} />
           ) : (<>
+<<<<<<< HEAD
           <section className="glass-dark relative mt-3.5 overflow-hidden rounded-[26px] p-[18px]">
             <Icon name="heart" fill cls="pointer-events-none absolute -right-2 -top-2 h-24 w-24 rotate-12 opacity-[.13]" />
             <div className="text-[13px] opacity-90">Saldo budget</div>
             <div className="font-serif text-[clamp(34px,10vw,44px)] leading-[1.05]">{bt ? rp(saldo) : 'Belum diatur'}</div>
             <div className="my-3 h-3 overflow-hidden rounded-full bg-[color-mix(in_srgb,var(--on)_30%,transparent)]"><i className="block h-full rounded-full bg-on transition-[width]" style={{ width: pct + '%' }} /></div>
+=======
+          <section className="relative mt-3.5 overflow-hidden rounded-[26px] bg-acc p-[18px] text-on">
+            <Icon name="heart" fill cls="pointer-events-none absolute -right-2 -top-2 h-24 w-24 rotate-12 opacity-[.13]" />
+            <div className="text-[13px] opacity-90">Saldo budget</div>
+            <div className="font-serif text-[clamp(28px,9vw,36px)] font-bold leading-[1.1]">{bt ? rp(saldo) : 'Belum diatur'}</div>
+            <div className="my-3 h-3 overflow-hidden rounded-full bg-on/30"><i className="block h-full rounded-full bg-on transition-[width]" style={{ width: pct + '%' }} /></div>
+>>>>>>> 6fbf6c92df783892fa8773654767ca0275a4600e
             <p className="text-[13px]">{bt ? `Terpakai ${rp(spent)} dari ${rp(bt)}${saldo < 0 ? ' (saldo minus)' : ''}` : 'Atur budget lewat menu dompet di atas.'}</p>
             <p className="text-[13px]">Dibeli {bought.length} dari {items.length} catatan. Belum dibeli {rp(pending)}{bt && pending > Math.max(saldo, 0) ? `, melebihi saldo ${rp(pending - Math.max(saldo, 0))}` : ''}</p>
           </section>
@@ -157,7 +184,11 @@ export default function Planner({ email, initialItems, initialBudget, initialGue
           )) : (
             <div className="px-2.5 py-11 text-center text-mute">
               <BirdLove cls="mx-auto -mb-1 w-52" />
+<<<<<<< HEAD
               <h2 className="text-[30px] text-ink">{key ? 'Tidak ada hasil' : 'Belum ada catatan'}</h2>
+=======
+              <h2 className="text-[26px] text-ink">{key ? 'Tidak ada hasil' : 'Belum ada catatan'}</h2>
+>>>>>>> 6fbf6c92df783892fa8773654767ca0275a4600e
               <p>{key ? 'Coba kata kunci lain.' : 'Tekan Tambah untuk mulai mencatat.'}</p>
             </div>
           )}
@@ -165,7 +196,11 @@ export default function Planner({ email, initialItems, initialBudget, initialGue
         </main>
 
         <button onClick={() => (view === 'needs' ? setSheet('new') : setGSheet('new'))}
+<<<<<<< HEAD
           className="fixed bottom-[calc(18px+env(safe-area-inset-bottom,0px))] right-[max(16px,calc(50%-264px))] z-10 flex min-h-[52px] items-center gap-2 glass-dark rounded-full px-[22px] text-base font-bold active:scale-95">
+=======
+          className="fixed bottom-[calc(18px+env(safe-area-inset-bottom,0px))] right-[max(16px,calc(50%-264px))] z-10 flex min-h-[52px] items-center gap-2 rounded-full bg-acc px-[22px] text-base font-bold text-on shadow-[0_5px_0_var(--ink)] active:translate-y-[3px] active:shadow-[0_2px_0_var(--ink)]">
+>>>>>>> 6fbf6c92df783892fa8773654767ca0275a4600e
           <Icon name="plus" />Tambah
         </button>
 
@@ -174,16 +209,26 @@ export default function Planner({ email, initialItems, initialBudget, initialGue
             onSaved={(row, isNew) => { setItems((l) => (isNew ? [...l, row] : l.map((x) => (x.id === row.id ? row : x)))); setSheet(null); say(isNew ? 'Catatan disimpan' : 'Catatan diperbarui'); }} />
         )}
         {printMenu && (
+<<<<<<< HEAD
           <div className="fixed inset-0 z-20 flex items-end justify-center bg-[rgba(40,22,12,.4)] backdrop-blur-sm" onClick={(e) => e.target === e.currentTarget && setPrintMenu(false)}>
             <div className="w-full max-w-[560px] glass-sheet rounded-t-[28px] px-4 pt-5 pb-[calc(24px+env(safe-area-inset-bottom,0px))]">
               <h2 className="text-[32px]">Cetak daftar tamu</h2>
+=======
+          <div className="fixed inset-0 z-20 flex items-end justify-center bg-black/50" onClick={(e) => e.target === e.currentTarget && setPrintMenu(false)}>
+            <div className="w-full max-w-[560px] rounded-t-[28px] bg-bg px-4 pt-5 pb-[calc(24px+env(safe-area-inset-bottom,0px))]">
+              <h2 className="text-[28px]">Cetak daftar tamu</h2>
+>>>>>>> 6fbf6c92df783892fa8773654767ca0275a4600e
               <p className="mb-3 text-sm text-mute">Pilih dokumen yang mau dicetak.</p>
               {([
                 ['dress', 'Penerima dresscode', `${guests.filter((g) => g.dresscode).length} undangan, ${bajuOf(guests.filter((g) => g.dresscode))} baju`],
                 ['regular', 'Tamu biasa (tanpa dresscode)', `${guests.filter((g) => !g.dresscode).length} undangan, ${paxOf(guests.filter((g) => !g.dresscode))} orang`],
                 ['all', 'Keduanya, halaman terpisah', 'Dresscode dulu, lalu tamu biasa'],
               ] as const).map(([m, n, sub]) => (
+<<<<<<< HEAD
                 <button key={m} className="mb-2 flex min-h-[58px] w-full flex-col items-start justify-center glass rounded-2xl px-4 text-left active:scale-[.99]"
+=======
+                <button key={m} className="mb-2 flex min-h-[58px] w-full flex-col items-start justify-center rounded-2xl border-2 border-line bg-card px-4 text-left active:bg-soft"
+>>>>>>> 6fbf6c92df783892fa8773654767ca0275a4600e
                   onClick={() => { setPrintMode(m); setPrintMenu(false); setTimeout(() => window.print(), 150); }}>
                   <b>{n}</b><span className="text-[13px] text-mute">{sub}</span>
                 </button>

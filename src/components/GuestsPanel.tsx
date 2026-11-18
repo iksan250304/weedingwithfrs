@@ -22,10 +22,17 @@ export default function GuestsPanel({ guests, q, filter, setFilter, onGiven, onE
 
   return (
     <>
+<<<<<<< HEAD
       <section className="glass-dark relative mt-3.5 overflow-hidden rounded-[26px] p-[18px]">
         <Icon name="users" cls="pointer-events-none absolute -right-2 -top-2 h-24 w-24 rotate-12 opacity-[.13]" />
         <div className="text-[13px] opacity-90">Total tamu</div>
         <div className="font-serif text-[clamp(34px,10vw,44px)] leading-[1.05]">{paxOf(guests)} orang</div>
+=======
+      <section className="relative mt-3.5 overflow-hidden rounded-[26px] bg-acc p-[18px] text-on">
+        <Icon name="users" cls="pointer-events-none absolute -right-2 -top-2 h-24 w-24 rotate-12 opacity-[.13]" />
+        <div className="text-[13px] opacity-90">Total tamu</div>
+        <div className="font-serif text-[clamp(28px,9vw,36px)] font-bold leading-[1.1]">{paxOf(guests)} orang</div>
+>>>>>>> 6fbf6c92df783892fa8773654767ca0275a4600e
         <p className="mt-2 text-[13px]">{SIDES.map((s) => { const l = guests.filter((g) => g.side === s.k); return `${s.n}: ${paxOf(l)} orang (${l.length} undangan)`; }).join(' · ')}</p>
         <p className="text-[13px]">Dresscode: {bajuOf(dress)} baju (Batik {batikOf(dress)} · Kebaya {kebayaOf(dress)})</p>
         <p className="text-[13px]">Sudah diberikan {bajuOf(given)}, belum {bajuOf(dress) - bajuOf(given)}</p>
@@ -44,7 +51,11 @@ export default function GuestsPanel({ guests, q, filter, setFilter, onGiven, onE
           <div className="flex items-center gap-3">
             {g.dresscode ? (
               <button aria-label="Tandai baju sudah diberikan" aria-pressed={g.given} onClick={() => onGiven(g)}
+<<<<<<< HEAD
                 className={`grid h-10 w-10 shrink-0 place-items-center rounded-full border-[2.5px] p-0 ${g.given ? 'border-lo bg-lo text-on' : 'border-dashed border-acc text-acc2'}`}>
+=======
+                className={`grid h-10 w-10 shrink-0 place-items-center rounded-full border-[2.5px] p-0 ${g.given ? 'border-lo bg-lo text-white' : 'border-dashed border-acc text-acc2'}`}>
+>>>>>>> 6fbf6c92df783892fa8773654767ca0275a4600e
                 <Icon name={g.given ? 'check' : 'shirt'} />
               </button>
             ) : (
@@ -54,7 +65,11 @@ export default function GuestsPanel({ guests, q, filter, setFilter, onGiven, onE
               <b className="break-words text-base">{g.name}</b>
               <div className="text-[13px] text-mute">
                 {groupName(g.grp)} · {g.pax} orang
+<<<<<<< HEAD
                 <span className={`ml-1 rounded-full px-2 py-px text-[11px] font-bold ${g.side === 'i' ? 'bg-acc text-on' : 'border border-acc text-acc'}`}>{sideName(g.side)}</span>
+=======
+                <span className={`ml-1 rounded-full px-2 py-px text-[11px] font-bold ${g.side === 'i' ? 'bg-acc text-on' : 'bg-ink text-bg'}`}>{sideName(g.side)}</span>
+>>>>>>> 6fbf6c92df783892fa8773654767ca0275a4600e
               </div>
             </div>
           </div>
@@ -74,7 +89,11 @@ export default function GuestsPanel({ guests, q, filter, setFilter, onGiven, onE
       )) : (
         <div className="px-2.5 py-11 text-center text-mute">
           <Icon name="users" cls="mx-auto mb-2 h-14 w-14 text-acc2" />
+<<<<<<< HEAD
           <h2 className="text-[30px] text-ink">{key || filter !== 'all' ? 'Tidak ada hasil' : 'Belum ada tamu'}</h2>
+=======
+          <h2 className="text-[26px] text-ink">{key || filter !== 'all' ? 'Tidak ada hasil' : 'Belum ada tamu'}</h2>
+>>>>>>> 6fbf6c92df783892fa8773654767ca0275a4600e
           <p>{key || filter !== 'all' ? 'Coba filter atau kata kunci lain.' : 'Tekan Tambah untuk mencatat tamu pertama.'}</p>
         </div>
       )}

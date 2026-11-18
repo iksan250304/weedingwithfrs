@@ -8,15 +8,24 @@ export default function ItemCard({ it, onToggle, onEdit, onDelete }: Props) {
     <div className={`card ${it.done ? 'opacity-75' : ''}`}>
       <div className="flex items-center gap-3">
         <button aria-label="Tandai selesai" aria-pressed={it.done} onClick={onToggle}
+<<<<<<< HEAD
           className={`grid h-10 w-10 shrink-0 place-items-center rounded-full border-[2.5px] p-0 ${it.done ? 'border-lo bg-lo text-on' : 'border-dashed border-acc text-acc2'}`}>
+=======
+          className={`grid h-10 w-10 shrink-0 place-items-center rounded-full border-[2.5px] p-0 ${it.done ? 'border-lo bg-lo text-white' : 'border-dashed border-acc text-acc2'}`}>
+>>>>>>> 6fbf6c92df783892fa8773654767ca0275a4600e
           <Icon name={it.done ? 'check' : 'heart'} />
         </button>
         <div className="min-w-0 flex-1">
           <b className="break-words text-base">{it.name}</b>
           <div className="text-[13px] text-mute">
             <span className="inline-flex items-center gap-1"><Icon name={catIcon(it.cat)} cls="h-3.5 w-3.5" />{catName(it.cat)}</span>
+<<<<<<< HEAD
             <span className={`ml-1 rounded-full px-2 py-px text-[11px] font-bold text-on ${PRIO_BG[it.prio]}`}>{PRIO[it.prio]}</span>
             {it.done && <span className="ml-1 rounded-full bg-lo px-2 py-px text-[11px] font-bold text-on">Dibeli</span>}
+=======
+            <span className={`ml-1 rounded-full px-2 py-px text-[11px] font-bold text-white ${PRIO_BG[it.prio]}`}>{PRIO[it.prio]}</span>
+            {it.done && <span className="ml-1 rounded-full bg-lo px-2 py-px text-[11px] font-bold text-white">Dibeli</span>}
+>>>>>>> 6fbf6c92df783892fa8773654767ca0275a4600e
           </div>
         </div>
         <div className={`text-right text-[15px] font-bold ${it.done ? 'text-lo' : ''}`}>{it.done ? '−' : ''}{rp(it.price)}</div>

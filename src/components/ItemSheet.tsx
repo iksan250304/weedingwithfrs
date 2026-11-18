@@ -32,9 +32,15 @@ export default function ItemSheet({ item, defaultCat, onClose, onSaved }: Props)
   }
 
   return (
+<<<<<<< HEAD
     <div className="fixed inset-0 z-20 flex items-end justify-center bg-[rgba(40,22,12,.4)] backdrop-blur-sm" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <form onSubmit={submit} className="max-h-[92dvh] w-full max-w-[560px] overflow-y-auto overscroll-contain glass-sheet rounded-t-[28px] px-4 pt-5 pb-[calc(24px+env(safe-area-inset-bottom,0px))]">
         <h2 className="text-[32px]">{item ? 'Ubah catatan' : 'Catatan baru'}</h2>
+=======
+    <div className="fixed inset-0 z-20 flex items-end justify-center bg-black/50" onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <form onSubmit={submit} className="max-h-[92dvh] w-full max-w-[560px] overflow-y-auto overscroll-contain rounded-t-[28px] bg-bg px-4 pt-5 pb-[calc(24px+env(safe-area-inset-bottom,0px))]">
+        <h2 className="text-[28px]">{item ? 'Ubah catatan' : 'Catatan baru'}</h2>
+>>>>>>> 6fbf6c92df783892fa8773654767ca0275a4600e
         <label className="lbl" htmlFor="n">Nama barang atau urusan</label>
         <input id="n" className="field" required placeholder="Contoh: Mukena set bordir" value={f.name} onChange={(e) => set('name', e.target.value)} />
         <label className="lbl" htmlFor="c">Kategori</label>
