@@ -1,12 +1,11 @@
 export type Item = { id: string; name: string; cat: string; price: number; wa: string; link: string; store: string; note: string; prio: number; done: boolean; created_at: string };
 export type Budget = { total: number; cats: Record<string, number> };
 export const CATS = [
-<<<<<<< HEAD
-  { k: 'seserahan', n: 'Seserahan', icon: 'gift' }, { k: 'souvenir', n: 'Souvenir', icon: 'bag' }, { k: 'mahar', n: 'Mas Kawin', icon: 'crown' },
-=======
-  { k: 'seserahan', n: 'Seserahan', icon: 'gift' }, { k: 'souvenir & undangan', n: 'Souvenir & Undangan', icon: 'bag' }, { k: 'mahar', n: 'Mas Kawin', icon: 'crown' },
->>>>>>> 6fbf6c92df783892fa8773654767ca0275a4600e
-  { k: 'cincin', n: 'Cincin', icon: 'ring' }, { k: 'kua', n: 'Administrasi KUA', icon: 'scroll' },
+  { k: 'seserahan', n: 'Seserahan', icon: 'gift' }, 
+  { k: 'souvenir & undangan', n: 'Souvenir & Undangan', icon: 'bag' }, 
+  { k: 'mahar', n: 'Mas Kawin', icon: 'crown' },
+  { k: 'cincin', n: 'Cincin', icon: 'ring' }, 
+  { k: 'kua', n: 'Administrasi KUA', icon: 'scroll' },
 ];
 export const PRIO: Record<number, string> = { 1: 'Tinggi', 2: 'Sedang', 3: 'Santai' };
 export const PRIO_BG: Record<number, string> = { 1: 'bg-hi', 2: 'bg-mid', 3: 'bg-lo' };
