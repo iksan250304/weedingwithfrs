@@ -1,5 +1,5 @@
 'use client';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Budget, CATS, Guest, Item, bajuOf, budgetTotal, catName, norm, normGuest, paxOf, rp, sumOf } from '@/lib/utils';
@@ -12,6 +12,9 @@ import BudgetSheet from './BudgetSheet';
 import PrintReport, { type PrintMode } from './PrintReport';
 import GuestsPanel from './GuestsPanel';
 import GuestSheet from './GuestSheet';
+import ScanSheet from './ScanSheet';
+import SelectBar from './SelectBar';
+import ConfirmDelete from './ConfirmDelete';
 
 type Props = { email: string; initialItems: Item[]; initialBudget: Budget; initialGuests: Guest[] };
 type Toast = { msg: string; undo?: Item; undoG?: Guest } | null;
@@ -33,6 +36,11 @@ export default function Planner({ email, initialItems, initialBudget, initialGue
   const [gSheet, setGSheet] = useState<Guest | 'new' | null>(null);
   const [printMenu, setPrintMenu] = useState(false);
   const [printMode, setPrintMode] = useState<PrintMode>('all');
+  const [selectMode, setSelectMode] = useState(false);
+  const [sel, setSel] = useState<Set<string>>(new Set());
+  const [confirmDel, setConfirmDel] = useState(false);
+  const [scan, setScan] = useState<'items' | 'guests' | null>(null);
+  useEffect(() => { setSel(new Set()); }, [filter, gFilter, q, view]);
   const timer = useRef<ReturnType<typeof setTimeout>>();
 
   function say(msg: string, undo?: Item, undoG?: Guest) {
@@ -78,6 +86,29 @@ export default function Planner({ email, initialItems, initialBudget, initialGue
     const { data, error } = await sb.from('wedding_guests').insert(g).select().single();
     if (error) return say('Gagal mengembalikan: ' + error.message);
     setGuests((l) => [...l, normGuest(data)]);
+  }
+  const pick = (id: string) => setSel((s) => { const n = new Set(s); if (n.has(id)) n.delete(id); else n.add(id); return n; });
+  const pickAll = (ids: string[], on: boolean) => setSel(on ? new Set(ids) : new Set());
+  function exitSelect() { setSelectMode(false); setSel(new Set()); }
+  async function bulkDelete() {
+    const ids = [...sel];
+    const table = view === 'needs' ? 'wedding_items' : 'wedding_guests';
+    const gone: string[] = [];
+    const apply = () => {
+      const s = new Set(gone);
+      if (view === 'needs') setItems((l) => l.filter((x) => !s.has(x.id)));
+      else setGuests((l) => l.filter((x) => !s.has(x.id)));
+    };
+    for (let i = 0; i < ids.length; i += 100) {
+      const chunk = ids.slice(i, i + 100);
+      const { error } = await sb.from(table).delete().in('id', chunk);
+      if (error) { apply(); setConfirmDel(false); say('Gagal menghapus: ' + error.message); return; }
+      gone.push(...chunk);
+    }
+    apply();
+    setConfirmDel(false);
+    exitSelect();
+    say(`${ids.length} catatan dihapus`);
   }
   async function logout() {
     await sb.auth.signOut();
@@ -126,8 +157,16 @@ export default function Planner({ email, initialItems, initialBudget, initialGue
 
           {searchOn && <input autoFocus type="search" className="field mt-3" placeholder={view === 'needs' ? 'Cari barang, vendor, atau toko' : 'Cari nama tamu atau catatan'} value={q} onChange={(e) => setQ(e.target.value)} />}
 
+          {!selectMode && (
+            <div className="mt-3 flex gap-2">
+              <button className="btn min-h-[46px] flex-1" onClick={() => setScan(view === 'needs' ? 'items' : 'guests')}><Icon name="scan" />Scan dengan AI</button>
+              <button className="btn btn-ghost min-h-[46px]" onClick={() => { setSelectMode(true); setSel(new Set()); }}><Icon name="check" />Pilih</button>
+            </div>
+          )}
+
           {view === 'guests' ? (
-            <GuestsPanel guests={guests} q={q} filter={gFilter} setFilter={setGFilter} onGiven={toggleGiven} onEdit={setGSheet} onDelete={removeGuest} />
+            <GuestsPanel guests={guests} q={q} filter={gFilter} setFilter={setGFilter} onGiven={toggleGiven} onEdit={setGSheet} onDelete={removeGuest}
+              selectMode={selectMode} sel={sel} onPick={pick} onPickAll={pickAll} onAskDelete={() => setConfirmDel(true)} onExit={exitSelect} />
           ) : (<>
           <section className="glass-dark relative mt-3.5 overflow-hidden rounded-[26px] p-[18px]">
             <Icon name="heart" fill cls="pointer-events-none absolute -right-2 -top-2 h-24 w-24 rotate-12 opacity-[.13]" />
@@ -152,8 +191,13 @@ export default function Planner({ email, initialItems, initialBudget, initialGue
             </div>
           )}
 
+          {selectMode && (
+            <SelectBar total={list.length} count={list.filter((i) => sel.has(i.id)).length} onCancel={exitSelect} onDelete={() => setConfirmDel(true)}
+              onToggleAll={() => pickAll(list.map((i) => i.id), !(list.length > 0 && list.every((i) => sel.has(i.id))))} />
+          )}
           {list.length ? list.map((it) => (
-            <ItemCard key={it.id} it={it} onToggle={() => toggle(it)} onEdit={() => setSheet(it)} onDelete={() => remove(it)} />
+            <ItemCard key={it.id} it={it} onToggle={() => toggle(it)} onEdit={() => setSheet(it)} onDelete={() => remove(it)}
+              selectMode={selectMode} selected={sel.has(it.id)} onPick={() => pick(it.id)} />
           )) : (
             <div className="px-2.5 py-11 text-center text-mute">
               <BirdLove cls="mx-auto -mb-1 w-52" />
@@ -198,6 +242,12 @@ export default function Planner({ email, initialItems, initialBudget, initialGue
         )}
         {budgetOpen && <BudgetSheet budget={budget} onClose={() => setBudgetOpen(false)} onSaved={(b) => { setBudget(b); setBudgetOpen(false); say('Budget disimpan'); }} />}
 
+        {scan && (
+          <ScanSheet kind={scan} defaultSide={gFilter === 'f' ? 'f' : 'i'} onClose={() => setScan(null)}
+            onItems={(rows) => { setItems((l) => [...l, ...rows]); setScan(null); say(`${rows.length} catatan ditambahkan`); }}
+            onGuests={(rows) => { setGuests((l) => [...l, ...rows]); setScan(null); say(`${rows.length} tamu ditambahkan`); }} />
+        )}
+        {confirmDel && <ConfirmDelete count={sel.size} noun={view === 'needs' ? 'catatan' : 'tamu'} onConfirm={bulkDelete} onCancel={() => setConfirmDel(false)} />}
         {toast && (
           <div role="status" className="fixed bottom-[calc(88px+env(safe-area-inset-bottom,0px))] left-1/2 z-30 max-w-[92vw] -translate-x-1/2 rounded-full bg-ink px-4 py-2.5 text-center text-[13px] font-bold text-bg">
             {toast.msg}

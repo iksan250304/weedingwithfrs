@@ -59,6 +59,7 @@ function GuestPrint({ guests, mode }: { guests: Guest[]; mode: PrintMode }) {
 
 function DressDoc({ list }: { list: Guest[] }) {
   const given = list.filter((g) => g.given);
+  const showPhone = list.some((g) => g.phone);
   return (
     <div>
       <h1 className="text-2xl">Daftar Penerima Baju Dresscode: Wedding Planner</h1>
@@ -77,16 +78,16 @@ function DressDoc({ list }: { list: Guest[] }) {
           <div key={s.k}>
             <h2 className={sideTitle}>{s.n} ({bajuOf(l)} baju, {l.length} undangan)</h2>
             <table className="w-full border-collapse"><tbody>
-              {head(['No', 'Nama', 'Kelompok', 'Batik', 'Ukuran batik', 'Kebaya', 'Ukuran kebaya', 'Kontak', 'Status'])}
+              {head(['No', 'Nama', 'Kelompok', 'Batik', 'Ukuran batik', 'Kebaya', 'Ukuran kebaya', ...(showPhone ? ['Kontak'] : []), 'Status'])}
               {l.map((g, n) => (
                 <tr key={g.id} className="break-inside-avoid">
                   <td className={td}>{n + 1}</td><td className={td}>{g.name}</td><td className={td}>{groupName(g.grp)}</td>
                   <td className={td}>{g.batik}</td><td className={td}>{g.size_batik || '-'}</td>
                   <td className={td}>{g.kebaya}</td><td className={td}>{g.size_kebaya || '-'}</td>
-                  <td className={td}>{g.phone || '-'}</td><td className={td}>{g.given ? 'Sudah diberikan' : 'Belum diberikan'}</td>
+                  {showPhone && <td className={td}>{g.phone || '-'}</td>}<td className={td}>{g.given ? 'Sudah diberikan' : 'Belum diberikan'}</td>
                 </tr>
               ))}
-              <tr className="font-bold"><td className={td} colSpan={3}>Total {s.n}</td><td className={td}>{batikOf(l)}</td><td className={td} /><td className={td}>{kebayaOf(l)}</td><td className={td} colSpan={3} /></tr>
+              <tr className="font-bold"><td className={td} colSpan={3}>Total {s.n}</td><td className={td}>{batikOf(l)}</td><td className={td} /><td className={td}>{kebayaOf(l)}</td><td className={td} colSpan={showPhone ? 3 : 2} /></tr>
             </tbody></table>
           </div>
         );
@@ -97,6 +98,7 @@ function DressDoc({ list }: { list: Guest[] }) {
 }
 
 function RegularDoc({ list }: { list: Guest[] }) {
+  const showPhone = list.some((g) => g.phone);
   return (
     <div>
       <h1 className="text-2xl">Daftar Tamu Undangan (Tanpa Dresscode): Wedding Planner</h1>
@@ -115,14 +117,14 @@ function RegularDoc({ list }: { list: Guest[] }) {
           <div key={s.k}>
             <h2 className={sideTitle}>{s.n} ({paxOf(l)} orang, {l.length} undangan)</h2>
             <table className="w-full border-collapse"><tbody>
-              {head(['No', 'Nama', 'Kelompok', 'Orang', 'Kontak', 'Catatan'])}
+              {head(['No', 'Nama', 'Kelompok', 'Orang', ...(showPhone ? ['Kontak'] : []), 'Catatan'])}
               {l.map((g, n) => (
                 <tr key={g.id} className="break-inside-avoid">
                   <td className={td}>{n + 1}</td><td className={td}>{g.name}</td><td className={td}>{groupName(g.grp)}</td>
-                  <td className={td}>{g.pax}</td><td className={td}>{g.phone || '-'}</td><td className={td}>{g.note || '-'}</td>
+                  <td className={td}>{g.pax}</td>{showPhone && <td className={td}>{g.phone || '-'}</td>}<td className={td}>{g.note || '-'}</td>
                 </tr>
               ))}
-              <tr className="font-bold"><td className={td} colSpan={3}>Total {s.n}</td><td className={td}>{paxOf(l)}</td><td className={td} colSpan={2} /></tr>
+              <tr className="font-bold"><td className={td} colSpan={3}>Total {s.n}</td><td className={td}>{paxOf(l)}</td><td className={td} colSpan={showPhone ? 2 : 1} /></tr>
             </tbody></table>
           </div>
         );

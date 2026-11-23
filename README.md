@@ -7,3 +7,6 @@ Next.js 14 (App Router) + TypeScript + Tailwind + Supabase (Auth + Postgres + RL
 3. `npm install && npm run dev` (buka http://localhost:3000).
 4. Daftar akun I dan F di /login, lalu matikan sign-up: Authentication > Providers > Email > Allow new users to sign up.
 5. Deploy: push ke GitHub, import ke Vercel, isi dua env var yang sama.
+
+## Scan AI
+Isi `GEMINI_API_KEY` (dari aistudio.google.com/apikey) di `.env.local` dan di Vercel (Settings > Environment Variables), lalu redeploy.

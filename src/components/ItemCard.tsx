@@ -1,16 +1,32 @@
 import Icon from './Icon';
 import { Item, PRIO, PRIO_BG, catIcon, catName, rp, toUrl, toWa } from '@/lib/utils';
 
-type Props = { it: Item; onToggle: () => void; onEdit: () => void; onDelete: () => void };
+type Props = {
+  it: Item; onToggle: () => void; onEdit: () => void; onDelete: () => void;
+  selectMode?: boolean; selected?: boolean; onPick?: () => void;
+};
 
-export default function ItemCard({ it, onToggle, onEdit, onDelete }: Props) {
+export default function ItemCard({ it, onToggle, onEdit, onDelete, selectMode = false, selected = false, onPick }: Props) {
   return (
-    <div className={`card ${it.done ? 'opacity-75' : ''}`}>
+    <div
+      className={`card ${it.done ? 'opacity-75' : ''} ${selectMode ? 'cursor-pointer' : ''} ${selected ? 'outline outline-[3px] outline-acc' : ''}`}
+      onClick={selectMode ? onPick : undefined}
+      role={selectMode ? 'checkbox' : undefined}
+      aria-checked={selectMode ? selected : undefined}
+      tabIndex={selectMode ? 0 : undefined}
+      onKeyDown={selectMode ? (e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); onPick?.(); } } : undefined}
+    >
       <div className="flex items-center gap-3">
-        <button aria-label="Tandai selesai" aria-pressed={it.done} onClick={onToggle}
-          className={`grid h-10 w-10 shrink-0 place-items-center rounded-full border-[2.5px] p-0 ${it.done ? 'border-lo bg-lo text-on' : 'border-dashed border-acc text-acc2'}`}>
-          <Icon name={it.done ? 'check' : 'heart'} />
-        </button>
+        {selectMode ? (
+          <span aria-hidden="true" className={`grid h-10 w-10 shrink-0 place-items-center rounded-full border-[2.5px] ${selected ? 'border-acc bg-acc text-on' : 'border-line'}`}>
+            {selected && <Icon name="check" />}
+          </span>
+        ) : (
+          <button aria-label="Tandai selesai" aria-pressed={it.done} onClick={onToggle}
+            className={`grid h-10 w-10 shrink-0 place-items-center rounded-full border-[2.5px] p-0 ${it.done ? 'border-lo bg-lo text-on' : 'border-dashed border-acc text-acc2'}`}>
+            <Icon name={it.done ? 'check' : 'heart'} />
+          </button>
+        )}
         <div className="min-w-0 flex-1">
           <b className="break-words text-base">{it.name}</b>
           <div className="text-[13px] text-mute">
@@ -21,21 +37,23 @@ export default function ItemCard({ it, onToggle, onEdit, onDelete }: Props) {
         </div>
         <div className={`text-right text-[15px] font-bold ${it.done ? 'text-lo' : ''}`}>{it.done ? '−' : ''}{rp(it.price)}</div>
       </div>
-      <div className="mt-3 flex flex-wrap items-center gap-2">
-        {it.link ? (
-          <a className="btn" href={toUrl(it.link)} target="_blank" rel="noopener noreferrer"><Icon name="link" />Buka toko</a>
-        ) : (
-          <span className="inline-flex min-h-[42px] max-w-full items-center gap-1.5 rounded-full bg-soft px-3 text-xs font-bold text-mute">
-            <Icon name="store" />{it.store || 'Tanpa link toko'}
-          </span>
-        )}
-        {it.wa && (
-          <a className="btn btn-wa" href={`https://wa.me/${toWa(it.wa)}`} target="_blank" rel="noopener noreferrer"><Icon name="chat" />Chat vendor</a>
-        )}
-        <span className="flex-1" />
-        <button className="mini" aria-label="Ubah" onClick={onEdit}><Icon name="edit" /></button>
-        <button className="mini" aria-label="Hapus" onClick={onDelete}><Icon name="trash" /></button>
-      </div>
+      {!selectMode && (
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          {it.link ? (
+            <a className="btn" href={toUrl(it.link)} target="_blank" rel="noopener noreferrer"><Icon name="link" />Buka toko</a>
+          ) : (
+            <span className="inline-flex min-h-[42px] max-w-full items-center gap-1.5 rounded-full bg-soft px-3 text-xs font-bold text-mute">
+              <Icon name="store" />{it.store || 'Tanpa link toko'}
+            </span>
+          )}
+          {it.wa && (
+            <a className="btn btn-wa" href={`https://wa.me/${toWa(it.wa)}`} target="_blank" rel="noopener noreferrer"><Icon name="chat" />Chat vendor</a>
+          )}
+          <span className="flex-1" />
+          <button className="mini" aria-label="Ubah" onClick={onEdit}><Icon name="edit" /></button>
+          <button className="mini" aria-label="Hapus" onClick={onDelete}><Icon name="trash" /></button>
+        </div>
+      )}
       {it.note && <p className="mt-2.5 break-words rounded-xl bg-soft px-3 py-2 text-[13px] text-mute">{it.note}</p>}
     </div>
   );

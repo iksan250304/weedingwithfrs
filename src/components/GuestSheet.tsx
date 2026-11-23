@@ -9,7 +9,7 @@ export default function GuestSheet({ guest, defaultSide, onClose, onSaved }: Pro
   const sb = useMemo(() => createClient(), []);
   const [f, setF] = useState({
     name: guest?.name ?? '', side: guest?.side ?? defaultSide, grp: guest?.grp ?? 'keluarga_dekat',
-    pax: String(guest?.pax ?? 1), phone: guest?.phone ?? '', note: guest?.note ?? '',
+    pax: String(guest?.pax ?? 1), note: guest?.note ?? '',
     batik: String(guest ? guest.batik : 1), kebaya: String(guest?.kebaya ?? 0),
     size_batik: guest?.size_batik ?? '', size_kebaya: guest?.size_kebaya ?? '',
   });
@@ -25,7 +25,7 @@ export default function GuestSheet({ guest, defaultSide, onClose, onSaved }: Pro
     if (dress && nB + nK < 1) return setErr('Isi minimal 1 baju (batik atau kebaya).');
     setBusy(true); setErr('');
     const row = {
-      name: f.name.trim(), side: f.side, grp: f.grp, pax: Math.max(1, Math.floor(Number(f.pax)) || 1), phone: f.phone.trim(),
+      name: f.name.trim(), side: f.side, grp: f.grp, pax: Math.max(1, Math.floor(Number(f.pax)) || 1), phone: guest?.phone ?? '',
       dresscode: dress, batik: dress ? nB : 0, kebaya: dress ? nK : 0,
       size_batik: dress && nB ? f.size_batik.trim() : '', size_kebaya: dress && nK ? f.size_kebaya.trim() : '',
       given: dress ? (guest?.given ?? false) : false, note: f.note.trim(),
@@ -55,12 +55,8 @@ export default function GuestSheet({ guest, defaultSide, onClose, onSaved }: Pro
         <select id="gg" className="field" value={f.grp} onChange={(e) => set('grp', e.target.value)}>
           {GROUPS.map((g) => <option key={g.k} value={g.k}>{g.n}</option>)}
         </select>
-        <div className="grid gap-x-2.5 min-[381px]:grid-cols-2">
-          <div><label className="lbl" htmlFor="gp">Jumlah orang hadir</label>
-            <input id="gp" className="field" type="number" inputMode="numeric" min={1} value={f.pax} onChange={(e) => set('pax', e.target.value)} /></div>
-          <div><label className="lbl" htmlFor="gw">No. WA</label>
-            <input id="gw" className="field" type="tel" inputMode="tel" placeholder="08123456789" value={f.phone} onChange={(e) => set('phone', e.target.value)} /></div>
-        </div>
+        <div><label className="lbl" htmlFor="gp">Jumlah orang hadir</label>
+          <input id="gp" className="field" type="number" inputMode="numeric" min={1} value={f.pax} onChange={(e) => set('pax', e.target.value)} /></div>
         <label className="mt-4 flex items-center gap-3 text-sm font-bold">
           <input type="checkbox" className="h-6 w-6 accent-[var(--acc)]" checked={dress} onChange={(e) => setDress(e.target.checked)} />
           Dapat baju dresscode
